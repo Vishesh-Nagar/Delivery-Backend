@@ -1,17 +1,17 @@
 import foodModel from "../middleware/model/foodModel.js";
 import fs from "fs";
+import { menu_list } from '../controller/assets.js'; // Import from assets.js
 
-
-//add food item
-
-const addFood = async(req,res)=>{
-    
+// Add food item
+const addFood = async (req, res) => {
     try {
         let image_filename = "";
         if (req.file) {
             image_filename = req.file.filename;
+        } else if (req.body.imageName && menu_list[req.body.imageName]) {
+            image_filename = menu_list[req.body.imageName]; // Use the image from assets.js
         } else {
-            throw new Error("No file uploaded");
+            throw new Error("No file uploaded or invalid image name");
         }
 
         const food = new foodModel({
@@ -30,29 +30,29 @@ const addFood = async(req,res)=>{
     }
 }
 
-//all food list 
-const listFood = async(req,res)=>{
+// All food list 
+const listFood = async (req, res) => {
     try {
         const foods = await foodModel.find({})
-        res.json({success:true,data:foods})
+        res.json({ success: true, data: foods })
     } catch (error) {
         console.log(error);
-        res.json({success:false,message:"error"})
+        res.json({ success: false, message: "error" })
 
     }
 }
 
-//remove food
-const removeFood= async (req,res)=>{
+// Remove food
+const removeFood = async (req, res) => {
     try {
         const food = await foodModel.findById(req.body.id)
-        fs.unlink(`upload/${food.image}`,()=>{})
+        fs.unlink(`upload/${food.image}`, () => { })
         await foodModel.findByIdAndDelete(req.body.id)
-        res.json({success:true,message:"food removed"})
+        res.json({ success: true, message: "food removed" })
     } catch (error) {
         console.log(error)
-        res.json({success:false,message:"error"})
+        res.json({ success: false, message: "error" })
     }
 }
 
-export {addFood,listFood,removeFood}
+export { addFood, listFood, removeFood }
